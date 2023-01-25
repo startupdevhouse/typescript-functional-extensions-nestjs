@@ -1,10 +1,28 @@
 {
   "name": "typescript-functional-extensions-nestjs",
   "version": "0.1.0",
-  "description": "",
+  "description": "NestJS utilities for working with typescript-functional-extensions Result monads",
   "author": "startupdevhouse",
   "license": "MIT",
   "main": "dist/index.js",
+  "keywords": [
+    "nestjs",
+    "typescript-functional-extensions",
+    "module",
+    "ResultResponseInterceptorModule",
+    "ResultResponseInterceptor",
+    "interceptor",
+    "result",
+    "monad"
+  ],
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/startupdevhouse/typescript-functional-extensions-nestjs.git"
+	},
+	"bugs": {
+		"url": "https://github.com/startupdevhouse/typescript-functional-extensions-nestjs/issues"
+	},
+	"homepage": "https://start-up.house",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

@@ -81,9 +81,9 @@ export class AppModule {}
 ```
 
 ## Contributing
-If you've found a bug or have a feature request, please [open an issue]() on GitHub.
+If you've found a bug or have a feature request, please [open an issue](https://github.com/startupdevhouse/typescript-functional-extensions-nestjs/issues) on GitHub.
 
-If you'd like to make a contribution, you can [create a Pull Request]() on GitHub.
+If you'd like to make a contribution, you can [create a Pull Request](https://github.com/startupdevhouse/typescript-functional-extensions-nestjs/pulls) on GitHub.
 
 ## Startup Development House
 <img src="https://start-up.house/packs/media/images/home/logo-lightbg-4f1a397101dea4defb8d18e275203d56.svg" alt="SDH" />
