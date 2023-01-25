@@ -1,73 +1,91 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS typescript-functional-extensions utilities
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This package contains utilities for working with [typescript-functional-extensions](https://www.npmjs.com/package/typescript-functional-extensions) in NestJS projects. Notably, it has the `ResultResponseInterceptorModule` with `ResultResponseInterceptor` that processes `Result` monads returned by controller methods and converts them to HTTP responses.
 
 ## Installation
 
-```bash
-$ npm install
+```
+# using npm
+npm install --save @startupdevhouse/typescript-functional-extensions-nestjs
+
+# or using yarn
+yarn add @startupdevhouse/typescript-functional-extensions-nestjs
 ```
 
-## Running the app
+## Configuration
 
-```bash
-# development
-$ npm run start
+### Import the module
+To convert `Result` monads to HTTP responses register the `ResultResponseInterceptorModule` in your `AppModule`:
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```typescript
+@Module({
+  imports: [
+    ResultResponseInterceptorModule.register(),
+  ],
+})
+export class AppModule {}
 ```
 
-## Test
+Then return a `Result` in your controller:
+```typescript
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
 
-```bash
-# unit tests
-$ npm run test
+  @Get()
+  getData() {
+    const result = Result.success(this.appService.getData());
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+    return result;
+  }
+}
 ```
 
-## Support
+### Default module configuration
+By default the module will return HTTP 200 OK for success results returned by application controllers. Additionally, if the result returned contained a value other than `Unit.Instance` it will be unwrapped and returned in the response body.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+All failures will be returned as HTTP 400 Bad Request. Default implementation will unwrap the error and return it in the response body.
 
-## Stay in touch
+### Customization
+`ResultResponseInterceptorModule` accepts the `handleFn` property in configuration options. You can override the default result handling logic there. In the following example all errors ending with `.DOES_NOT_EXIST` postfix will be processed as HTTP 404 responses:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```typescript
+function handleResult(result: Result<unknown, any>) {
+  if (result.isSuccess) {
+    const value = result.getValueOrDefault(Unit.Instance);
 
-## License
+    if (value === Unit.Instance) {
+      return;
+    }
 
-Nest is [MIT licensed](LICENSE).
+    return value;
+  }
+  const error = result.getErrorOrThrow() as string;
+  const errorParts = error.split('_');
+
+  if (error.endsWith('.DOES_NOT_EXIST')) {
+    throw new NotFoundException(error);
+  }
+
+  throw new BadRequestException(error);
+}
+
+@Module({
+  imports: [
+    ResultResponseInterceptorModule.register({
+      handleFn: handleResult,
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+## Contributing
+If you've found a bug or have a feature request, please [open an issue]() on GitHub.
+
+If you'd like to make a contribution, you can [create a Pull Request]() on GitHub.
+
+## Startup Development House
+<img src="https://start-up.house/packs/media/images/home/logo-lightbg-4f1a397101dea4defb8d18e275203d56.svg" alt="SDH" />
+
+This package was initially created for projects in [Startup Development House](https://start-up.house). We love using Monads so we decided to share this love with the community ❤️
