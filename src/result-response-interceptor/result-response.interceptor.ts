@@ -34,8 +34,13 @@ export class ResultResponseInterceptor<T> implements NestInterceptor {
   ): Observable<ResultResponseInterceptorResult<T>> {
     return next.handle().pipe(
       map((response) => {
-        if (response instanceof Result) {
-          return this.handleFn(response);
+        // In some situations there is a problem with using instanceOf if a class is in the package and in the project using the package.
+        // Therefore we introduce this comparison function as a workaround.
+        if (response && response.toString) {
+          const string = response.toString();
+          if (['Result.success', 'Result.failure'].includes(string)) {
+            return this.handleFn(response as Result<T>);
+          }
         }
 
         return response;

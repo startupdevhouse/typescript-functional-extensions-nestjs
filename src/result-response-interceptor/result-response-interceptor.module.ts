@@ -8,7 +8,9 @@ import {
 
 @Module({})
 export class ResultResponseInterceptorModule {
-  static register(options: { handleFn?: HandleFn } = {}): DynamicModule {
+  static register(
+    options: { handleFn?: HandleFn<unknown> } = {},
+  ): DynamicModule {
     return {
       module: ResultResponseInterceptorModule,
       providers: [
