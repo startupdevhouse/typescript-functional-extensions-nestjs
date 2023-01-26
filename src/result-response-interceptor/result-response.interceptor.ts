@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   BadRequestException,
   CallHandler,
@@ -9,14 +7,14 @@ import {
 import { map, Observable } from 'rxjs';
 import { Result, Unit } from 'typescript-functional-extensions';
 
-export type HandleFn = (result: Result<unknown, any>) => undefined | unknown;
+export type HandleFn<T> = (result: Result<T, any>) => T | undefined;
 
-function handleFnDefault(result: Result<unknown, any>) {
+function handleFnDefault<T>(result: Result<T, any>) {
   if (result.isFailure) {
     throw new BadRequestException(result.getErrorOrThrow());
   }
 
-  const value = result.getValueOrDefault(Unit.Instance);
+  const value = result.getValueOrThrow();
 
   if (value === Unit.Instance) {
     return;
@@ -25,27 +23,24 @@ function handleFnDefault(result: Result<unknown, any>) {
   return value;
 }
 
-export class ResultResponseInterceptor implements NestInterceptor {
-  constructor(private readonly handleFn: HandleFn | undefined) {}
+export type ResultResponseInterceptorResult<T> = { data: T | undefined } | any;
+
+export class ResultResponseInterceptor<T> implements NestInterceptor {
+  constructor(private readonly handleFn: HandleFn<T> = handleFnDefault) {}
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+    next: CallHandler<Result<T>> | CallHandler<unknown>,
+  ): Observable<ResultResponseInterceptorResult<T>> {
     return next.handle().pipe(
       map((response) => {
-        switch (true) {
-          case response instanceof Result:
-            return this.processResult(response);
-          default:
-            return response;
+        if (response instanceof Result) {
+          return this.handleFn(response);
         }
+
+        return response;
       }),
       map((data) => ({ data })),
     );
-  }
-
-  private processResult(response: Result<unknown, any>) {
-    return this.handleFn ? this.handleFn(response) : handleFnDefault(response);
   }
 }
