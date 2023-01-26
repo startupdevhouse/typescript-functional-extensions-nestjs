@@ -7,7 +7,7 @@ describe('ResultResponseInterceptor', () => {
   describe('with default handleFn', () => {
     const resultResponseInterceptor = new ResultResponseInterceptor();
 
-    it('should throw BadRequestException when result is failure', (done) => {
+    it('throws BadRequestException if result is failure', (done) => {
       const next: CallHandler<Result<string>> = {
         handle(): Observable<Result<string>> {
           return of(Result.failure<string, string>(''));
@@ -24,7 +24,7 @@ describe('ResultResponseInterceptor', () => {
       });
     });
 
-    it('should return value if not failure', (done) => {
+    it('returns value if not failure', (done) => {
       const expectedValue = 'This one is fine';
       const next: CallHandler<Result<string>> = {
         handle(): Observable<Result<string>> {
@@ -44,7 +44,7 @@ describe('ResultResponseInterceptor', () => {
   });
 
   describe('with custom handleFn', () => {
-    it('should call handleFn if intercepted value is type of Result', (done) => {
+    it('calls handleFn if intercepted value is type of Result', (done) => {
       const handleFn = jest.fn();
       const resultResponseInterceptor = new ResultResponseInterceptor(handleFn);
 
@@ -60,7 +60,7 @@ describe('ResultResponseInterceptor', () => {
       });
     });
 
-    it('should NOT call handleFn if intercepted value is NOT type of Result', (done) => {
+    it('does NOT call handleFn if intercepted value is NOT type of Result', (done) => {
       const handleFn = jest.fn();
       const resultResponseInterceptor = new ResultResponseInterceptor(handleFn);
 
