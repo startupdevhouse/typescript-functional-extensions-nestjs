@@ -70,7 +70,7 @@
   "peerDependencies": {
     "@nestjs/common": "^9.2.1",
     "@nestjs/core": "^9.2.1",
-    "typescript-functional-extensions": "^1.4.0"
+    "typescript-functional-extensions": ">=1.4.0"
   },
   "jest": {
     "moduleFileExtensions": [
