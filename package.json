@@ -1,6 +1,6 @@
 {
   "name": "@startupdevhouse/typescript-functional-extensions-nestjs",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "NestJS utilities for working with typescript-functional-extensions Result monads",
   "author": "",
   "license": "MIT",

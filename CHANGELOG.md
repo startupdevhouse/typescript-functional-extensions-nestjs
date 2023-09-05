@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/startupdevhouse/typescript-functional-extensions-nestjs/compare/v0.2.1...v0.3.0) (2023-09-05)
+
+
+### Features
+
+* add configurable mapping function ([ce117b7](https://github.com/startupdevhouse/typescript-functional-extensions-nestjs/commit/ce117b7d8c2f7131b8fc7fe7be1cd6136eec33ef))
+
 ### [0.2.1](https://github.com/startupdevhouse/typescript-functional-extensions-nestjs/compare/v0.2.0...v0.2.1) (2023-06-29)
 
 
