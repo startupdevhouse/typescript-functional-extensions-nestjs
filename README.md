@@ -46,7 +46,7 @@ By default the module will return HTTP 200 OK for success results returned by ap
 
 All failures will be returned as HTTP 400 Bad Request. Default implementation will unwrap the error and return it in the response body.
 
-### Customization
+### Handling Result errors
 `ResultResponseInterceptorModule` accepts the `handleFn` property in configuration options. You can override the default result handling logic there. In the following example all errors ending with `.DOES_NOT_EXIST` postfix will be processed as HTTP 404 responses:
 
 ```typescript
@@ -74,6 +74,21 @@ function handleResult(result: Result<unknown, any>) {
   imports: [
     ResultResponseInterceptorModule.register({
       handleFn: handleResult,
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### Custom wrapping/mapping values
+`ResultResponseInterceptorModule` accepts the `mappingFn` property in configuration options. You can override the default result mapping logic there. In the following example the value is additionally wrapped in a wrapper object:
+```typescript
+@Module({
+  imports: [
+    ResultResponseInterceptorModule.register({
+      mappingFn: (data) => ({
+        wrapped: data,
+      }),
     }),
   ],
 })
