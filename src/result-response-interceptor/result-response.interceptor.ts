@@ -8,6 +8,7 @@ import { map, Observable } from 'rxjs';
 import { Result, Unit } from 'typescript-functional-extensions';
 
 export type HandleFn<T> = (result: Result<T, any>) => T | undefined;
+export type MappingFn = (data: unknown) => unknown;
 
 function handleFnDefault<T>(result: Result<T, any>) {
   if (result.isFailure) {
@@ -23,10 +24,27 @@ function handleFnDefault<T>(result: Result<T, any>) {
   return value;
 }
 
+function mappingFnDefault<T>(data: T): unknown {
+  return {
+    data,
+  };
+}
+
 export type ResultResponseInterceptorResult<T> = { data: T | undefined } | any;
 
+export type ResultResponseInterceptorConfiguration<T> = {
+  handleFn?: HandleFn<T>;
+  mappingFn?: MappingFn;
+};
+
 export class ResultResponseInterceptor<T> implements NestInterceptor {
-  constructor(private readonly handleFn: HandleFn<T> = handleFnDefault) {}
+  private readonly handleFn: HandleFn<T>;
+  private readonly mappingFn: MappingFn;
+
+  constructor(configuration: ResultResponseInterceptorConfiguration<T>) {
+    this.handleFn = configuration.handleFn || handleFnDefault;
+    this.mappingFn = configuration.mappingFn || mappingFnDefault;
+  }
 
   intercept(
     context: ExecutionContext,
@@ -45,7 +63,7 @@ export class ResultResponseInterceptor<T> implements NestInterceptor {
 
         return response;
       }),
-      map((data) => ({ data })),
+      map((data) => this.mappingFn(data)),
     );
   }
 }
